@@ -1,0 +1,5 @@
+streamlit 
+pypdf 
+PyPDF2 
+reportlab
+pymupdf
