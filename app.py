@@ -26,14 +26,14 @@ st.set_page_config(
 )
 # Firebase configuration - Replace with your Firebase config
 firebase_config = {
-    "apiKey": "AIzaSyBoP53OTUEcrY6TVAF6DE3KQEb2r4WfT7I",
-    "authDomain": "pdf-editing-tool.firebaseapp.com",
-    "projectId": "pdf-editing-tool",
-    "storageBucket": "pdf-editing-tool.firebasestorage.app",
-    "messagingSenderId": "918924033221",
-    "appId": "1:918924033221:web:d8b51df3363016121f84ac",
-    "measurementId": "G-88E0R9PKBQ",
-    "databaseURL":"https://console.firebase.google.com/u/0/project/pdf-editing-tool/database/pdf-editing-tool-default-rtdb/data/~2F"
+    "apiKey": st.secrets["apiKey"],
+    "authDomain": st.secrets["authDomain"],
+    "projectId": st.secrets["projectId"],
+    "storageBucket": st.secrets["storageBucket"],
+    "messagingSenderId": st.secrets["messagingSenderId"],
+    "appId": st.secrets["appId"],
+    "measurementId": st.secrets["measurementId"],
+    "databaseURL":st.secrets["databaseURL"]
 }
 
 # Initialize Firebase (only if not already initialized)
