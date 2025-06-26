@@ -18,3 +18,4 @@ Pillow>=10.0.0
 cryptography>=41.0.0
 pycryptodome>=3.18.0
 setuptools
+urllib3>=1.26.16

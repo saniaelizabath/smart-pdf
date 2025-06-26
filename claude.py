@@ -15,6 +15,7 @@ import json
 import pyrebase
 from streamlit_option_menu import option_menu
 import time
+import hashlib
 
 # ================================
 # FIREBASE AUTHENTICATION SETUP
@@ -627,9 +628,9 @@ def main_app():
         return packet
 
     # ---------- Streamlit UI Tabs ----------
-    tab1, tab2, tab3, tab4, tab5= st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🔗 Combine PDFs", "🔢 Add Page Numbers", "🗜️ Compress PDF", 
-        "📝 Header/Footer", "💧 Watermark"
+        "📝 Header/Footer", "💧 Watermark", "🧹 Remove Pages"
     ])
 
     # --------- Combine PDFs Tab ---------
@@ -932,6 +933,66 @@ def main_app():
         - **Color**: Light gray (#CCCCCC) or light blue (#CCE5FF) are common choices
         - **Page Range**: Use specific ranges like '1,3-5' to watermark only certain pages
         """)
+
+    # --------- Remove Pages Tab ---------
+    with tab6:
+        st.subheader("🧹 Remove Duplicate or Custom Pages from your PDF")
+        uploaded_remove_file = st.file_uploader("Upload PDF to clean/remove pages", type="pdf", key="remove_pdf")
+        st.markdown("### Remove Duplicates")
+        remove_dupes = st.checkbox("Automatically remove duplicate pages")
+        st.markdown("### Remove by Page Numbers")
+        custom_remove = st.text_input(
+            "Enter page numbers to remove (comma-separated, 1-based, e.g. 2,4,7 , hyphen seperated eg. 3-5)",
+            value=""
+        )
+        if uploaded_remove_file and st.button("🧹 Clean PDF"):
+            with st.spinner("Processing PDF..."):
+                reader = PdfReader(uploaded_remove_file)
+                writer = PdfWriter()
+                total_pages = len(reader.pages)
+                # Parse custom page numbers to remove (supporting ranges like 3-5)
+                remove_indices = set()
+                if custom_remove.strip():
+                    for part in custom_remove.split(","):
+                        part = part.strip()
+                        if '-' in part:
+                            try:
+                                start, end = map(int, part.split('-'))
+                                for idx in range(start-1, end):
+                                    if 0 <= idx < total_pages:
+                                        remove_indices.add(idx)
+                            except:
+                                pass
+                        else:
+                            try:
+                                idx = int(part) - 1
+                                if 0 <= idx < total_pages:
+                                    remove_indices.add(idx)
+                            except:
+                                pass
+                # Remove duplicates if checked (using text-based comparison)
+                seen_hashes = set()
+                for i, page in enumerate(reader.pages):
+                    if i in remove_indices:
+                        continue
+                    if remove_dupes:
+                        # Extract and normalize text
+                        text = page.extract_text()
+                        if text is None:
+                            text = ""
+                        norm_text = ' '.join(text.split()).lower()
+                        page_hash = hashlib.md5(norm_text.encode('utf-8')).hexdigest()
+                        if page_hash in seen_hashes:
+                            continue
+                        seen_hashes.add(page_hash)
+                    writer.add_page(page)
+                output = BytesIO()
+                writer.write(output)
+                output.seek(0)
+                st.success("✅ Cleaned PDF ready!")
+                st.download_button(
+                    "⬇️ Download Cleaned PDF", output, file_name="cleaned_output.pdf", mime="application/pdf"
+                )
 
     # --------- Footer Information ---------
     st.markdown("---")
