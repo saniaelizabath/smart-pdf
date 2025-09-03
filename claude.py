@@ -27,7 +27,7 @@ st.set_page_config(
 )
 # Firebase configuration - Replace with your Firebase config
 firebase_config = {
-    "apiKey": st.secrets["apiKey"]
+    "apiKey": st.secrets["apiKey"],
     "authDomain": st.secrets["authDomain"],
     "projectId": st.secrets["projectId"],
     "storageBucket": st.secrets["storageBucket"],
